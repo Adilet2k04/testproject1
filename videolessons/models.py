@@ -1,5 +1,6 @@
 from django.contrib.auth.models import User
 from django.db import models
+from django.utils import timezone
 
 
 class Product(models.Model):
@@ -11,7 +12,7 @@ class Product(models.Model):
 
 
 class ProductAccess(models.Model):
-    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='accesses')
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     can_view = models.BooleanField(default=False)
     can_edit = models.BooleanField(default=False)
@@ -35,6 +36,7 @@ class LessonProgress(models.Model):
     lesson = models.ForeignKey(Lesson, on_delete=models.CASCADE)
     watched_duration_seconds = models.IntegerField()
     is_completed = models.BooleanField(default=False)
+    last_watched_date = models.DateTimeField(auto_now=False)
 
     def __str__(self):
         return f"{self.user.username} - {self.lesson.name} Progress"
@@ -45,5 +47,6 @@ class LessonProgress(models.Model):
             self.is_completed = True
         else:
             self.is_completed = False
+        self.last_watched_date = timezone.now()
         super().save(*args, **kwargs)
 
